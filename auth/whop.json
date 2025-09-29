@@ -1,0 +1,314 @@
+{
+  "cookies": [
+    {
+      "name": "whop_sig_id",
+      "value": "a7ab6590-f036-4cd6-b724-a004fb3300af",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": 1790509502.623438,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Host-whop-core.csrf-token",
+      "value": "c1e4699a-40e3-4b67-9fa9-e6f822e1af3c",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "whop-core.ssk",
+      "value": "a9309fdc-c80d-44bd-aeef-b8c7bda4fd4d",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1758974738.009593,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "whop-frosted-theme",
+      "value": "appearance:light",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1790509535,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ajs_anonymous_id",
+      "value": "a63b1626-a16f-4c84-bcd7-825822dc6dc6",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1790509537,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "NEXT_LOCALE",
+      "value": "en",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": 1790509503.495668,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga",
+      "value": "GA1.1.826568444.1758973504",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1793533503.514396,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Secure-whop-checkout.fp-session",
+      "value": "3590ee93-e98b-48d7-b137-8590dea228e9",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "_immortal|deviceToken",
+      "value": "eyJhbGciOiJkaXIiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMTI4R0NNIiwidHlwIjoiSldUIn0..3CoHPoozoziyqXDS.IUcDEzaFXq-gGN8ie7YCl7gSykxaZTJrjIHUCyIF-GA3bKRHZ890NJ9-04Bd6qPUTSYggtdJ_i2Nk7vxtA6vLphppO_1cfuKAv722krcTEhz3UxKsNY_SUsFpOV-2l9HyU-WwpBfhNBfJU_jDpe4ueXWMK2jiOUzhTM9PtbIawS-73-EUe4-wVmmf3Ql4j8rzKO048UNXDo83jcWBDeMVkQ_NFhFlDBv96UtKJ4oMZPZ_wSR4IB9zUnzS6tOyWiH8YvFVWIPrqVVDTW-B4JWBOCCwCy_1HjL.knwAdwdvPlQZlgoSRQ4Xzg",
+      "domain": "api.sardine.ai",
+      "path": "/",
+      "expires": 1790509557,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "rskxRunCookie",
+      "value": "0",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1793533537.17711,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "rCookie",
+      "value": "6167zfjy1ofw4wgfkoo3kdmg27eqbl",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1793533537.86341,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "m",
+      "value": "07ef7a4c-2111-4613-922f-8470d23d71b5ef2986",
+      "domain": "m.stripe.com",
+      "path": "/",
+      "expires": 1793533538.438878,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__stripe_mid",
+      "value": "04870330-49e7-4c2b-8951-7008b91127dad1788e",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1790509538,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "__stripe_sid",
+      "value": "12a51343-0882-4ef9-b14a-5a56ce371278cd20f5",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1758975338,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    },
+    {
+      "name": "_gcl_au",
+      "value": "1.1.900582396.1758973503.1045308800.1758973516.1758973516",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1766749503,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "IDE",
+      "value": "AHWqTUnOw6UnGyTmcr8n7UwGAXIJ4HXEDAvefRO7r8Idx8IsPENEaznnCOOtGuZX",
+      "domain": ".doubleclick.net",
+      "path": "/",
+      "expires": 1792669516.415504,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "whop-core.access-token",
+      "value": "eyJraWQiOiJkZWZhdWx0LWtleS1pZC1lczI1Ni1wcm9kIiwiYWxnIjoiRVMyNTYifQ.eyJleHAiOjE3NTg5NzcxMzUsInN1YiI6InVzZXJfTlBqZkNTUFRoaWNIUCIsImlhdCI6MTc1ODk3MzUzNSwiaXNzIjoid2hvcC1yYWlscy1wcm9kIiwidHlwIjoiYWNjZXNzIiwidiI6MX0.9d2aNddxsmmjNBnencShSP1za_0sD9EVS4wmE7crGadZj-zJ03rgBlD_XWv9GFjavI4TJFdbCDIBbbB0PO5S8g",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": 1758977075.569756,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "whop-core.refresh-token",
+      "value": "a581c6b4701cd5cfaf0b991a59631ac22d1d3ee01edc4e6938e0b80867f634cf",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": 1790509475.569924,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "whop-core.uid-token",
+      "value": "eyJraWQiOiJkZWZhdWx0LWtleS1pZC1lczI1Ni1wcm9kIiwiYWxnIjoiRVMyNTYifQ.eyJleHAiOjE3NTg5NzcxMzUsInN1YiI6InVzZXJfTlBqZkNTUFRoaWNIUCIsImlhdCI6MTc1ODk3MzUzNSwiaXNzIjoid2hvcC1yYWlscy1wcm9kIiwidHlwIjoidWlkIn0.EyasaIPDC8eCuSPaO79X0ygjxI96Vx35wG8276B3SjmVYRQawXcYh5kD151tko8eN4QBQS0Y0z2uE-RlAZqCyQ",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1758977075.570015,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ajs_user_id",
+      "value": "user_NPjfCSPThicHP",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1790509537,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "whop-core.user-id",
+      "value": "user_NPjfCSPThicHP",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1758977080.148881,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "lastRskxRun",
+      "value": "1758973537176",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1793533537.177052,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "muxData",
+      "value": "=undefined&mux_viewer_id=6a08608b-39c4-4b3e-8339-ccaa8afe2bcd&msn=0.018510352882920356&sid=7dd84d57-4cf4-4db2-92ff-f5e98afe2bcf&sst=1758973537231&sex=1758975037489",
+      "domain": "whop.com",
+      "path": "/",
+      "expires": 1790509537,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__cf_bm",
+      "value": "_c3DXsXdKlXJpfkSgoFR_LjawRgGc4NYrTPKOuDzgDY-1758973540-1.0.1.1-ytg.TGlsBr.mg_SCWUGQUtUeAQiVaEfGRlTw8vKWwqEZrTXwhxW6yowpi31Qq8usO40vpSNO_1xh1Z_oSbXUNamPAYEopvu_mRMYKJ.h7yU",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1758975340.14898,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_ga_NGD3HKQGSV",
+      "value": "GS2.1.s1758973503$o1$g1$t1758973557$j6$l0$h0",
+      "domain": ".whop.com",
+      "path": "/",
+      "expires": 1793533557.293032,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://whop.com",
+      "localStorage": [
+        {
+          "name": "ajs_user_id",
+          "value": "\"user_NPjfCSPThicHP\""
+        },
+        {
+          "name": "rCookie",
+          "value": "{\"value\":\"6167zfjy1ofw4wgfkoo3kdmg27eqbl\",\"expiration_date\":\"Mon, 27 Sep 2027 11:45:37 GMT\"}"
+        },
+        {
+          "name": "rskxRunCookie",
+          "value": "{\"value\":0,\"expiration_date\":\"Mon, 27 Sep 2027 11:45:37 GMT\"}"
+        },
+        {
+          "name": "lastRskxRun",
+          "value": "{\"value\":1758973537176,\"expiration_date\":\"Mon, 27 Sep 2027 11:45:37 GMT\"}"
+        },
+        {
+          "name": "whop_core_biz_F49Jj7sOXvDgFw_last_experience",
+          "value": "null"
+        },
+        {
+          "name": "whop_core_biz_FTesaeScPzlidS_last_experience",
+          "value": "null"
+        },
+        {
+          "name": "forum-post-drafts",
+          "value": "{}"
+        },
+        {
+          "name": "_gcl_ls",
+          "value": "{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"creationTimeMs\":1758973503426},\"expires\":1766749503426}}"
+        },
+        {
+          "name": "media-chrome-pref-muted",
+          "value": "false"
+        },
+        {
+          "name": "ajs_anonymous_id",
+          "value": "\"a63b1626-a16f-4c84-bcd7-825822dc6dc6\""
+        },
+        {
+          "name": "ajs_user_traits",
+          "value": "{\"is_employee_admin\":false,\"is_employee_manager\":false,\"is_employee_support\":false,\"created_at\":\"2025-07-28T16:07:32.000Z\",\"is_internal_whop_employee\":false,\"username\":\"johnsmiththeundisputedgoat\",\"suspended\":false,\"date_of_birth\":\"2000-01-01T00:00:00.000Z\",\"name\":\"John Smith\",\"email\":\"johnsmiththeundisputedgoat@gmail.com\"}"
+        }
+      ]
+    },
+    {
+      "origin": "https://api.sardine.ai",
+      "localStorage": [
+        {
+          "name": "_immortal|deviceToken",
+          "value": "eyJhbGciOiJkaXIiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMTI4R0NNIiwidHlwIjoiSldUIn0..3CoHPoozoziyqXDS.IUcDEzaFXq-gGN8ie7YCl7gSykxaZTJrjIHUCyIF-GA3bKRHZ890NJ9-04Bd6qPUTSYggtdJ_i2Nk7vxtA6vLphppO_1cfuKAv722krcTEhz3UxKsNY_SUsFpOV-2l9HyU-WwpBfhNBfJU_jDpe4ueXWMK2jiOUzhTM9PtbIawS-73-EUe4-wVmmf3Ql4j8rzKO048UNXDo83jcWBDeMVkQ_NFhFlDBv96UtKJ4oMZPZ_wSR4IB9zUnzS6tOyWiH8YvFVWIPrqVVDTW-B4JWBOCCwCy_1HjL.knwAdwdvPlQZlgoSRQ4Xzg"
+        }
+      ]
+    }
+  ]
+}

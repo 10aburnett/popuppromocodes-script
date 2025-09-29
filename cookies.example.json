@@ -1,0 +1,10 @@
+[
+  {
+    "name": "whop_session",
+    "value": "REDACTED",
+    "domain": ".whop.com",
+    "path": "/",
+    "httpOnly": true,
+    "secure": true
+  }
+]

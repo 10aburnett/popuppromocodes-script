@@ -1,0 +1,21 @@
+{
+  "name": "whp-codes",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "install:browsers": "playwright install chromium",
+    "scrape": "node src/scrape-whop-popup-codes.js",
+    "scrape:seed": "WHOP_START_URL=https://whop.com/discover/trading/ node src/scrape-whop-popup-codes.js",
+    "scrape:all": "node src/scrape-whop-all.js",
+    "scrape:whpcodes": "node src/scrape-from-whpcodes.js",
+    "login:capture": "node src/capture-whop-session.js",
+    "discover": "node src/phaseA_discover.js",
+    "extract": "node src/phaseB_extract.js",
+    "materialize": "node scripts/materialize-positives.js",
+    "pipeline:full": "npm run discover && npm run extract && npm run materialize"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  }
+}
