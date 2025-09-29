@@ -147,11 +147,17 @@ async function extractAll({ concurrency = 2, storage = process.env.WHOP_STORAGE 
     const page = await context.newPage();
 
     try {
+      // Extract route from URL for spillover prevention
+      const routeFromUrl = (u) => {
+        try { return new URL(u).pathname.split('/').filter(Boolean)[0] || null; } catch { return null; }
+      };
+      const currentRoute = routeFromUrl(url);
+
       // Navigate to product page
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
-      // Extract popup promo using our robust utility
-      const hit = await extractPopupPromoFromNetwork(page, { timeoutMs: 15000 });
+      // Extract popup promo using our robust utility with route-based spillover prevention
+      const hit = await extractPopupPromoFromNetwork(page, { timeoutMs: 15000, currentRoute });
 
       // Create visit record
       const record = {
