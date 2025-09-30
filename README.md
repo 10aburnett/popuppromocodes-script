@@ -204,6 +204,15 @@ Uses multiple regex patterns to extract codes:
 }
 ```
 
+## Important Guidelines
+
+### ⚠️ Product Name Accuracy
+**CRITICAL**: When referencing Whop products in documentation, testing, or reporting:
+- **ONLY** use actual product names from the data (e.g., `tms-options`, `scarface-trades`)
+- **NEVER** make up or invent product names (e.g., don't write "a-to-z-trades" or "swifft-options")
+- Always verify product names directly from URLs in `data/visited.jsonl` or `data/queue.jsonl`
+- Use exact product slug from URL: `https://whop.com/tms-options/` → `tms-options`
+
 ## Troubleshooting
 
 ### No codes found
