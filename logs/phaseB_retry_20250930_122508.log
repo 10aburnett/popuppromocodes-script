@@ -1,0 +1,28 @@
+🚀 Starting extraction phase
+📊 Queue status:
+   - Total in queue: 8203
+   - Already completed: 8137
+   - Previous errors: 0
+   - To process: 66
+⚠️ No authentication - some promos may be hidden
+✅ Authenticated session verified
+📊 Progress: 10/66 (found: 0, empty: 10, errors: 0, active: 1)
+📊 Progress: 20/66 (found: 0, empty: 20, errors: 0, active: 1)
+🎉 Found popup code: promo-4c4f5c7a (null) at https://whop.com/cognyto/?a=alexburnett21
+📊 Progress: 30/66 (found: 1, empty: 29, errors: 0, active: 1)
+📊 Progress: 40/66 (found: 1, empty: 39, errors: 0, active: 1)
+📊 Progress: 50/66 (found: 1, empty: 49, errors: 0, active: 1)
+📊 Progress: 60/66 (found: 1, empty: 59, errors: 0, active: 1)
+📊 Progress: 66/66 (found: 1, empty: 65, errors: 0, active: 0)
+
+🎉 Extraction complete!
+📈 Final results:
+   - Processed: 66/66
+   - Popup codes found: 1
+   - No codes: 65
+   - Errors: 0
+📁 Data files: /Users/alexburnett/WHP Codes, redeem all popuppromocodes/whp-codes/data
+
+⏳ Graceful shutdown initiated...
+📊 Final stats: processed 66/66, found 1, empty 65, errors 0
+✅ Graceful shutdown complete. Progress saved.
