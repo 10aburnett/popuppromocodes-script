@@ -121,3 +121,57 @@ The background monitors show:
 - ✅ GraphQL message feed spillover completely blocked
 
 **The extractor is now production-ready with bulletproof spillover prevention!** 🎉
+
+---
+
+## 🔥 CRITICAL: DO NOT MODIFY PHASE A & B EXTRACTION LOGIC
+
+**⚠️ WARNING**: The Phase A and Phase B promo code extraction is **WORKING PERFECTLY** and must **NEVER** be modified unless explicitly requested.
+
+### What is PROTECTED (DO NOT TOUCH):
+- ✅ All spillover prevention logic (`accept` function)
+- ✅ GraphQL POST variable checking
+- ✅ Route-based attribution
+- ✅ `requestfinished` listener pattern
+- ✅ Code finding regexes (`PROMO_REGEXES`)
+- ✅ Page context extraction (`getPageContext`)
+- ✅ All Phase A and Phase B runner scripts
+
+### What CAN be modified:
+- ✅ Discount percentage extraction logic only
+- ✅ Wait times and timeouts
+- ✅ Discount parsing patterns
+- ✅ Scripts that ONLY extract discounts from already-found codes
+
+### Discount Extraction (Separate from Promo Code Extraction)
+
+After Phase A & B successfully extract promo codes, we run a separate discount extraction pass:
+
+**Script**: `src/simple_discount_extract.js`
+- Reads URLs with already-found promo codes from `data/visited.jsonl`
+- Visits each URL and extracts discount percentage for that specific code
+- Uses bulletproof JSON object parsing around the code
+- Outputs to `data/discount_results.jsonl`
+
+**Key insight**: Discount data lives in the same JSON object as the promo code:
+```json
+{"popupPromoCode": {"discountOff": "10%", "amountOff": 0.1, "code": "promo-xyz"}}
+```
+
+**Bulletproof extraction approach**:
+1. Find the code in response body
+2. Extract nearest JSON object around the code occurrence
+3. Parse discount fields directly from that object
+4. Works with JSON, RSC strings, and minified blobs
+
+**Run discount extraction**:
+```bash
+WHOP_STORAGE=auth/whop.json DEBUG=1 node src/simple_discount_extract.js
+```
+
+**Helper functions** (in `src/utils/extractPromo.js`):
+- `extractNearestJsonObject()` - Finds JSON block around code
+- `extractDiscountFieldsFromSnippet()` - Parses discount fields
+- `sliceAround()` - Creates window around code index
+
+**Current timing**: 2.5s wait after initial load, 2.5s after reload

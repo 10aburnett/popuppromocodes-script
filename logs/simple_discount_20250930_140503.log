@@ -1,0 +1,31 @@
+🎯 Processing 810 unique URLs with promo codes
+[1/810] https://whop.com/ayecon-lifetime-membership?a=alexburnett21  promo-022d1f18  ✅
+[2/810] https://whop.com/ayecon-monthly-mentorship/?a=alexburnett21  promo-022d1f18  ✅
+[3/810] https://whop.com/mogul-stock-class/?a=alexburnett21  promo-336b4acd  —
+[4/810] https://whop.com/dodgys-dungeon/?a=alexburnett21  promo-565022f7  —
+[5/810] https://whop.com/goat-sports-betting/?a=alexburnett21  promo-3352bb19  —
+[6/810] https://whop.com/goat-ecomgrowth/?a=alexburnett21  promo-1b868367  —
+[7/810] https://whop.com/exclusive-vip-access/?a=alexburnett21  promo-b172ab61  ✅
+[8/810] https://whop.com/larrys-lounge/?a=alexburnett21  promo-bf9ef1cc  —
+[9/810] https://whop.com/moementum?a=alexburnett21  promo-23ab3618  ✅
+[10/810] https://whop.com/joinmomentum/?a=alexburnett21  promo-1a92969c  —
+[11/810] https://whop.com/tms-options/?a=alexburnett21  promo-327db8fc  —
+[12/810] https://whop.com/scarface-trades/?a=alexburnett21  promo-01fe6235  —
+[13/810] https://whop.com/tradewithinsight/?a=alexburnett21  promo-624c9ea4  —
+[14/810] https://whop.com/zwm-gold/?a=alexburnett21  promo-73841533  —
+[15/810] https://whop.com/lifetime-access-e2?a=alexburnett21  promo-4e6d572f  ✅
+[16/810] https://whop.com/dodgy-s-ultimate-trading-course-ad/?a=alexburnett21  promo-fbf309e1  ✅
+[17/810] https://whop.com/flipalert/?a=alexburnett21  promo-430abb41  —
+[18/810] https://whop.com/the-yard/?a=alexburnett21  promo-784ede4b  ✅
+[19/810] https://whop.com/jdubtrades/?a=alexburnett21  promo-1ead8ef6  ✅
+[20/810] https://whop.com/shark-action-group-og/?a=alexburnett21  promo-bd0525e1  —
+[21/810] https://whop.com/depop-method-community/?a=alexburnett21  promo-5b6156ed  —
+[22/810] https://whop.com/queezy-locks-904/?a=alexburnett21 ❌ page.waitForTimeout: Target page, context or browser has been closed
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+browserContext.newPage: Target page, context or browser has been closed
+    at /Users/alexburnett/WHP Codes, redeem all popuppromocodes/whp-codes/src/simple_discount_extract.js:39:32
+
+Node.js v22.17.0

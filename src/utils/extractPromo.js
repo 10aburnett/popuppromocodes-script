@@ -1,283 +1,219 @@
 // src/utils/extractPromo.js
-// Hardened extractor with ChatGPT's surgical fix for anchor-based context attribution
+// Discount extractor (listener-first, URL-driven, code-anchored)
 
 const textDecoder = new TextDecoder('utf-8');
 
-// Only skip obvious static assets; keep everything else (including graphql/messages)
-const SKIP_EXT = /\.(png|jpe?g|gif|svg|webp|avif|ico|css|woff2?|ttf|map|mp4|webm|m4s|mp3|wav)(\?|$)/i;
+function escapeRe(s) { return s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'); }
 
-function firstWhopRouteIn(text) {
-  // finds the first whop.com/<slug> mention embedded in JSON/HTML/etc
-  const m = /https?:\/\/(?:www\.)?whop\.com\/([^"\/\s?]+)/i.exec(text);
-  return m ? m[1] : null;
+function readDiscountFromSnippet(snippet) {
+  if (!snippet) return null;
+  const s = snippet.replace(/\\"/g, '"').replace(/\\n|\\r/g, ' ').replace(/\s+/g, ' ');
+
+  const pctStr  = /"discountOff"\s*:\s*"(?:\s*)?(\d{1,3}(?:\.\d+)?)(?:\s*)%"/i.exec(s)?.[1];
+  const pctBare = /"discountOff"\s*:\s*(\d{1,3}(?:\.\d+)?)(?!\s*["%])/i.exec(s)?.[1];
+  const decBare = /"discountOff"\s*:\s*(0?\.\d+)/i.exec(s)?.[1];
+
+  const amtNum  = /"amountOff"\s*:\s*(\d+(?:\.\d+)?)/i.exec(s)?.[1];
+  const amtStr  = /"amountOff"\s*:\s*"(\d+(?:\.\d+)?)"/i.exec(s)?.[1];
+  const cents   = /"amountOffInCents"\s*:\s*(\d+)/i.exec(s)?.[1];
+
+  let discountPercent = null;
+  if (pctStr != null) discountPercent = Number(pctStr);
+  else if (pctBare != null) {
+    const n = Number(pctBare);
+    discountPercent = n <= 1 ? Math.round(n * 1000) / 10 : n;
+  } else if (decBare != null) {
+    const n = Number(decBare);
+    discountPercent = Math.round(n * 1000) / 10; // 0.3 -> 30.0
+  } else if (amtNum != null || amtStr != null) {
+    const n = Number(amtNum ?? amtStr);
+    if (isFinite(n) && n > 0 && n <= 1) discountPercent = Math.round(n * 1000) / 10;
+  }
+
+  return {
+    discountPercent: discountPercent ?? null,
+    amountOff: amtNum != null ? Number(amtNum) : (amtStr != null ? Number(amtStr) : null),
+    amountOffInCents: cents ? Number(cents) : null,
+  };
 }
 
-function routeFromUrl(u) {
-  try { return new URL(u).pathname.split('/').filter(Boolean)[0] || null; } catch { return null; }
+function nearestJsonObject(text, startIndex) {
+  let i = startIndex;
+  while (i > 0 && text[i] !== '{') i--;
+  if (text[i] !== '{') return null;
+
+  let depth = 0, inStr = false, esc = false;
+  for (let j = i; j < text.length; j++) {
+    const ch = text[j];
+    if (esc) { esc = false; continue; }
+    if (ch === '\\') { esc = true; continue; }
+    if (ch === '"') inStr = !inStr;
+    if (inStr) continue;
+
+    if (ch === '{') depth++;
+    else if (ch === '}') {
+      depth--;
+      if (depth === 0) return text.slice(i, j + 1);
+    }
+  }
+  return null;
 }
 
-async function getPageContext(page, fallbackRoute) {
-  const url = await page.url();
-  const route = routeFromUrl(url) || fallbackRoute || null;
+function extractDiscountNearCodeFromBody(body, code) {
+  if (!body || !code) return null;
+  const text = body.replace(/\\"/g, '"');
 
-  // Try to sniff IDs from the DOM (covers Next/RSC + inline data blobs)
-  const ctx = await page.evaluate(() => {
-    const out = {};
-    try {
-      // Look for inline JSON blobs that often carry product/company ids
-      const scripts = [...document.querySelectorAll('script')];
-      for (const s of scripts) {
-        const t = s.textContent || '';
-        if (!t) continue;
-        // productId
-        let m = /"productId"\s*:\s*"([^"]+)"/i.exec(t) || /"product"\s*:\s*\{\s*"id"\s*:\s*"([^"]+)"/i.exec(t);
-        if (m) out.productId = m[1];
-        // companyId
-        m = /"companyId"\s*:\s*"([^"]+)"/i.exec(t) || /"company"\s*:\s*\{\s*"id"\s*:\s*"([^"]+)"/i.exec(t);
-        if (m) out.companyId = m[1];
-        if (out.productId || out.companyId) break;
+  // 1) Try to capture the entire popupPromoCode object that mentions THIS code
+  const blockRe = new RegExp(
+    `"popupPromoCode"\\s*:\\s*\\{[\\s\\S]{0,20000}?"code"\\s*:\\s*"${escapeRe(code)}"[\\s\\S]{0,20000}?\\}`,
+    "i"
+  );
+  const block = blockRe.exec(text)?.[0];
+  if (block) {
+    const parsed = readDiscountFromSnippet(block);
+    if (parsed) return parsed;
+  }
+
+  // 2) Large window around the code, then balanced-object parse
+  const hit = new RegExp(escapeRe(code), "i").exec(text);
+  if (!hit) return null;
+  const BEFORE = 20000, AFTER = 20000;
+  const left = Math.max(0, hit.index - BEFORE);
+  const right = Math.min(text.length, hit.index + code.length + AFTER);
+  const win = text.slice(left, right);
+
+  const startIdx = /"popupPromoCode"\s*:/i.exec(win)?.index ?? /"code"\s*:\s*"/i.exec(win)?.index;
+  if (startIdx != null) {
+    // find nearest balanced object from start
+    let i = startIdx; while (i > 0 && win[i] !== '{') i--;
+    if (win[i] === '{') {
+      let depth = 0, str = false, esc = false;
+      for (let j = i; j < win.length; j++) {
+        const ch = win[j];
+        if (esc) { esc = false; continue; }
+        if (ch === '\\') { esc = true; continue; }
+        if (ch === '"') str = !str;
+        if (str) continue;
+        if (ch === '{') depth++;
+        else if (ch === '}' && --depth === 0) {
+          const obj = win.slice(i, j + 1);
+          const parsedObj = readDiscountFromSnippet(obj);
+          if (parsedObj) return parsedObj;
+          break;
+        }
       }
+    }
+  }
+
+  // 3) Heuristic parse of the window
+  const parsedWin = readDiscountFromSnippet(win);
+  if (parsedWin) return parsedWin;
+
+  // 4) Weak fallback: if only one discountOff appears in the whole body, accept it
+  const only = [...text.matchAll(/"discountOff"\s*:\s*("?\s*\d{1,3}(?:\.\d+)?\s*%?"?)/ig)];
+  if (only.length === 1) {
+    const v = only[0][1].replace(/["\s%]/g, '');
+    const n = Number(v);
+    return { discountPercent: n <= 1 ? Math.round(n*1000)/10 : n, amountOff: null, amountOffInCents: null };
+  }
+
+  return null;
+}
+
+function scoreCandidate(x, currentRoute) {
+  let s = 0;
+  if (x.discountPercent != null) s += 50;
+  if (/json|x-component/i.test(x.ct ?? '')) s += 20;
+  if (currentRoute && x.sourceUrl && x.sourceUrl.includes(`/${currentRoute}`)) s += 10;
+  if (x.sourceUrl && /MessagesFetchDmsChannels/i.test(x.sourceUrl)) s -= 15; // soft penalty on cross-feeds
+  return s;
+}
+
+async function captureRun(page, url, onlyThisCode) {
+  // Attach listeners BEFORE navigation
+  const captured = [];
+
+  const pwHandler = async (resp) => {
+    try {
+      const u = resp.url();
+      const ct = (resp.headers()['content-type'] || '').toLowerCase();
+      if (/image|font|video|audio|css/i.test(ct)) return;
+      const text = await resp.text().catch(() => '');
+      if (!text) return;
+      captured.push({ url: u, ct, body: text });
     } catch {}
-    return out;
+  };
+  page.on('response', pwHandler);
+
+  // CDP capture (gets streamed bodies + cached)
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Network.enable');
+  cdp.on('Network.responseReceived', async (e) => {
+    try {
+      const { requestId, response } = e;
+      if (!response || !response.url) return;
+      if (/image|font|video|audio|css/i.test(response.mimeType || '')) return;
+      const got = await cdp.send('Network.getResponseBody', { requestId }).catch(() => null);
+      if (!got || !got.body) return;
+      const text = got.base64Encoded ? Buffer.from(got.body, 'base64').toString('utf8') : got.body;
+      captured.push({ url: response.url, ct: (response.mimeType || '').toLowerCase(), body: text });
+    } catch {}
   });
 
-  return { route, productId: ctx.productId || null, companyId: ctx.companyId || null };
-}
-
-function discoverContext(s) {
-  // Extract product/company/route context from response body - more flexible patterns
-  const pid = /"productId"\s*:\s*"([^"]+)"/i.exec(s)?.[1] ||
-             /"product"\s*:\s*\{\s*"id"\s*:\s*"([^"]+)"/i.exec(s)?.[1];
-  const cid = /"companyId"\s*:\s*"([^"]+)"/i.exec(s)?.[1] ||
-             /"company"\s*:\s*\{\s*"id"\s*:\s*"([^"]+)"/i.exec(s)?.[1];
-  const route = /"route"\s*:\s*"([^"]+)"/i.exec(s)?.[1];
-
-  // Also try to extract from URL patterns in the body
-  if (!route) {
-    const urlMatch = /whop\.com\/([^"/?]+)/i.exec(s);
-    if (urlMatch && urlMatch[1] !== 'api' && urlMatch[1] !== '_next') {
-      return { productId: pid, companyId: cid, route: urlMatch[1] };
-    }
-  }
-
-  return { productId: pid, companyId: cid, route };
-}
-
-function calculateScore(body, ctx, url) {
-  // Simplified, effective scoring system
-  let score = 0;
-
-  // High-value signals
-  if (body.includes('popupPromoCode')) score += 10;
-  if (ctx?.route && (body.includes(`"route":"${ctx.route}"`) || body.includes(`whop.com/${ctx.route}`))) score += 10;
-
-  // Content type preferences
-  const ct = url.toLowerCase();
-  if (ct.includes('application/json') || ct.includes('text/x-component')) score += 5;
-  if (url.includes('graphql')) score += 3;
-
-  return Math.max(score, 1); // Minimum score of 1
-}
-
-const PROMO_REGEXES = [
-  /"popupPromoCode"\s*:\s*\{[^}]*"code"\s*:\s*"(promo-[a-z0-9-]{6,})"/gi,   // structured
-  /[?&]promoCode=(promo-[a-z0-9-]{6,})/gi,                                   // URL param
-  /"(promo-[a-z0-9-]{6,})"/gi,                                               // quoted occurrences
-  /(?:^|[^a-z0-9])(promo-[a-z0-9-]{6,})(?=[^a-z0-9]|$)/gi                    // bare token
-];
-
-function* findCodes(s) {
-  for (const re of PROMO_REGEXES) {
-    const it = s.matchAll(re);
-    for (const m of it) yield m[1];
-  }
-}
-
-function tryExtractWithRegex(s) {
-  for (const re of PROMO_REGEXES) {
-    const m = s.match(re);
-    if (m && m.length > 0) {
-      // For regex with groups, return the first group; otherwise return the full match
-      return m[1] || m[0];
-    }
-  }
-  return null;
-}
-
-function unescapeRsc(s) {
-  // minimal unescape just for \" → "
-  return s.replace(/\\"/g, '"');
-}
-
-function maybeJsonGetCode(s) {
-  try {
-    const obj = JSON.parse(s);
-    // direct JSON envelope
-    if (obj?.popupPromoCode?.code) return obj.popupPromoCode.code;
-    // RSC array-like strings sometimes embed JSON-as-string
-    const str = typeof obj === 'string' ? obj : null;
-    if (str) {
-      const code = tryExtractWithRegex(str) || tryExtractWithRegex(unescapeRsc(str));
-      if (code) return code;
-    }
-  } catch (_) {}
-  return null;
-}
-
-async function readResponseBody(resp) {
-  try {
-    // text() usually handles brotli/gzip; body() is a fallback
-    const ct = resp.headers()['content-type'] || '';
-    if (/^application\/octet-stream/.test(ct)) {
-      const buf = await resp.body();
-      return textDecoder.decode(buf);
-    }
-    return await resp.text();
-  } catch {
-    try {
-      const buf = await resp.body();
-      return textDecoder.decode(buf);
-    } catch { return ''; }
-  }
-}
-
-export async function extractPopupPromoFromNetwork(page, { timeoutMs = 15000, currentRoute = null } = {}) {
-  const hits = [];
-  const ctx = await getPageContext(page, currentRoute); // {route, productId, companyId}
-
-  const accept = ({ code, req, resp, body, ct, now }) => {
-    // 1) must be whop.com
-    let hn = '';
-    try { hn = new URL(resp.url()).hostname; } catch {}
-    if (!/whop\.com$/i.test(hn)) return false;
-
-    // 2) strong belonging checks
-    // 2a) structured popupPromoCode on this page → always accept
-    if (/popupPromoCode/i.test(body)) {
-      // If we can see the current route in body or URL, attribute strongly
-      if ((ctx.route && (body.includes(`whop.com/${ctx.route}`) || resp.url().includes(`/${ctx.route}`)))) {
-        return true;
-      }
-      // If structured code object exists but no route, still accept (page-local RSC often omits route)
-      if (/"popupPromoCode"\s*:/.test(body)) return true;
-    }
-
-    // 2b) GraphQL POST with variables tied to this page
-    const url = resp.url();
-    const isGraphQL = /graphql/i.test(url);
-    if (isGraphQL && req) {
-      const post = req.postData() || '';
-      const op = /"operationName"\s*:\s*"([^"]+)"/i.exec(post)?.[1] || '';
-      const varRoute = /"route"\s*:\s*"([^"]+)"/i.exec(post)?.[1] || '';
-      const varPid   = /"productId"\s*:\s*"([^"]+)"/i.exec(post)?.[1] || '';
-      const varCid   = /"companyId"\s*:\s*"([^"]+)"/i.exec(post)?.[1] || '';
-
-      const routeMatch = ctx.route && varRoute && varRoute.toLowerCase() === ctx.route.toLowerCase();
-      const pidMatch   = ctx.productId && varPid && varPid === ctx.productId;
-      const cidMatch   = ctx.companyId && varCid && varCid === ctx.companyId;
-
-      // Only accept if variables tie to this page (route or ids)
-      if (routeMatch || pidMatch || cidMatch) return true;
-
-      // Otherwise reject (this is where bleed happens: DM channels, feed, etc.)
-      return false;
-    }
-
-    // 2c) HTML/JSON responses for THIS route
-    if ((/text\/html|application\/json|text\/x-component/i.test(ct)) &&
-        ctx.route &&
-        (resp.url().includes(`/${ctx.route}`) || body.includes(`whop.com/${ctx.route}`))) {
-      return true;
-    }
-
-    // 3) fallback: don't accept stray JS chunks or cross-product messages
-    return false;
-  };
-
-  const handler = async (request) => {
-    try {
-      const resp = await request.response();
-      if (!resp) return;
-
-      const ct = (resp.headers()['content-type'] || '').toLowerCase();
-      // Skip static junk early
-      if (/image|font|video|audio|css/.test(ct)) return;
-
-      // Read response text safely
-      let body = '';
-      try { body = await resp.text(); } catch {}
-      if (!body) return;
-
-      // quick check: avoid scanning huge blobs that can't possibly contain 'promo-'
-      if (!/promo-|popupPromoCode|promoCode/i.test(body) && !/promoCode=/i.test(resp.url())) return;
-
-      // Gather candidates
-      const codes = new Set();
-      for (const c of findCodes(body)) codes.add(c.toLowerCase());
-
-      // If URL has promoCode param
-      const urlParam = /[?&]promoCode=(promo-[a-z0-9-]{6,})/i.exec(resp.url());
-      if (urlParam) codes.add(urlParam[1].toLowerCase());
-
-      if (codes.size === 0) return;
-
-      // Decide per code
-      for (const code of codes) {
-        const ok = accept({ code, req: request, resp, body, ct, now: Date.now() });
-        if (!ok) {
-          if (process.env.DEBUG) {
-            console.log(`❌ reject ${code} from ${resp.url()} (route=${ctx.route})`);
-          }
-          continue;
-        }
-        const hit = {
-          code,
-          url: resp.url(),
-          ct,
-          ts: Date.now(),
-          route: ctx.route || null
-        };
-        if (process.env.DEBUG) {
-          console.log(`✅ accept ${code} @ ${resp.url()} (route=${ctx.route})`);
-        }
-        hits.push(hit);
-      }
-    } catch (e) {
-      if (process.env.DEBUG) console.log('handler error:', e.message);
-    }
-  };
-
-  page.on('requestfinished', handler);
-
-  // You already do this, but make sure flow mirrors your manual steps:
-  // - disable cache
-  // - goto
-  // - wait a bit (quiet network), then *hard* reload, then wait again
-  await page.route('**/*', route => route.continue());
-  await page.goto(await page.url(), { waitUntil: 'domcontentloaded', timeout: 45000 });
-  await page.waitForTimeout(900);
+  // Navigate → wait → hard reload
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
+  await page.waitForLoadState('networkidle').catch(()=>{});
+  await page.waitForTimeout(1200);
   await page.reload({ waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForLoadState('networkidle').catch(()=>{});
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(1200);
 
-  page.off('requestfinished', handler);
+  // Also parse final HTML
+  try {
+    const html = await page.content();
+    captured.push({ url: page.url(), ct: 'text/html', body: html });
+  } catch {}
 
-  if (!hits.length) return null;
-
-  // de-dupe and pick best by "structured > same-route > JSON/RSC > recency"
-  const byCode = new Map();
-  for (const h of hits) {
-    const prev = byCode.get(h.code);
-    if (!prev) byCode.set(h.code, h);
-    else if (h.ts > prev.ts) byCode.set(h.code, h);
+  // Process captured bodies
+  const candidates = [];
+  for (const item of captured) {
+    if (onlyThisCode && !new RegExp(escapeRe(onlyThisCode), 'i').test(item.body)) continue;
+    const res = extractDiscountNearCodeFromBody(item.body, onlyThisCode);
+    if (res) candidates.push({ ...res, sourceUrl: item.url, ct: item.ct });
   }
-  const ranked = [...byCode.values()].sort((a, b) => {
-    const s = (x) =>
-      (x.ct.includes('application/json') || x.ct.includes('text/x-component') ? 40 : 0) +
-      (x.route && currentRoute && x.route.toLowerCase() === currentRoute.toLowerCase() ? 30 : 0) +
-      x.ts / 1e6; // slight recency tie-break
-    return s(b) - s(a);
-  });
 
-  return { code: ranked[0].code, type: ranked[0].ct, sourceUrl: ranked[0].url }; // "bottom-most meaningful" equivalent
+  page.off('response', pwHandler);
+  return candidates;
+}
+
+export async function extractPopupPromoFromNetwork(
+  page,
+  { url, timeoutMs = 15000, currentRoute = null, onlyThisCode = null } = {}
+) {
+  if (!url) throw new Error('extractPopupPromoFromNetwork: missing url');
+
+  // Run 1: plain URL
+  let candidates = await captureRun(page, url, onlyThisCode);
+
+  // If nothing, Run 2: force materialization with ?promoCode=
+  if (candidates.length === 0 && onlyThisCode) {
+    const withCodeUrl = url.includes('promoCode=')
+      ? url
+      : url + (url.includes('?') ? '&' : '?') + 'promoCode=' + encodeURIComponent(onlyThisCode);
+    candidates = await captureRun(page, withCodeUrl, onlyThisCode);
+  }
+
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => scoreCandidate(b, currentRoute) - scoreCandidate(a, currentRoute));
+  const best = candidates[0];
+
+  return {
+    code: onlyThisCode || null,
+    discountPercent: best.discountPercent ?? null,
+    amountOff: best.amountOff ?? null,
+    amountOffInCents: best.amountOffInCents ?? null,
+    sourceUrl: best.sourceUrl ?? null,
+    type: best.ct ?? null,
+  };
 }

@@ -162,19 +162,23 @@ async function extractAll({ concurrency = 2, storage = process.env.WHOP_STORAGE 
       // Create visit record
       const record = {
         url,
-        found: !!(hit?.code || hit?.amountOff || hit?.discountOff),
+        found: !!(hit?.code),
         code: hit?.code || null,
+        discountPercent: hit?.discountPercent || null,
         amountOff: hit?.amountOff || null,
-        discountOff: hit?.discountOff || null,
-        promoId: hit?.promoId || null,
+        amountOffInCents: hit?.amountOffInCents || null,
         type: hit?.type || null,
-        sourceUrl: hit?.url || null,
+        sourceUrl: hit?.sourceUrl || null,
         checkedAt: new Date().toISOString()
       };
 
       if (record.found) {
         found++;
-        console.log(`🎉 Found popup code: ${record.code || 'discount'} (${record.amountOff || record.discountOff}) at ${url}`);
+        const discInfo = [];
+        if (record.discountPercent) discInfo.push(`${record.discountPercent}%`);
+        if (record.amountOff) discInfo.push(`amountOff=${record.amountOff}`);
+        if (record.amountOffInCents) discInfo.push(`${record.amountOffInCents}¢`);
+        console.log(`🎉 Found popup code: ${record.code}${discInfo.length ? ' ['+discInfo.join(', ')+']' : ''} at ${url}`);
       } else {
         empty++;
         if (process.env.DEBUG) {
